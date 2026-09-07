@@ -425,6 +425,7 @@ function loadData() {
     document.getElementById('loading').style.display = 'none';
     showRaw('home');
     updateHomeStats();
+    if (SCRIPT_URL) refreshFromSheet();
     return;
   }
 
@@ -432,6 +433,25 @@ function loadData() {
   document.getElementById('loading').style.display = 'none';
   showRaw('settings');
   showStatus('구글 시트 URL을 입력하고 동기화해주세요.', false);
+}
+
+// 캐시로 즉시 화면을 띄운 뒤, 백그라운드로 시트 최신 데이터를 다시 받아와서
+// 다른 기기에서 바꾼 별점 등의 변경사항을 반영한다.
+function refreshFromSheet() {
+  jsonpLoad(SCRIPT_URL, function(d) {
+    if (!d || !d.ok || !d.questions || !d.questions.length) return;
+    buildFromSheet(d.questions, d.templates, d.richText);
+    try { localStorage.setItem('opic_stars', JSON.stringify(stars)); } catch(e) {}
+    rerenderCurrentScreen();
+  }, function() { /* 오프라인 등으로 실패하면 캐시된 화면 그대로 유지 */ });
+}
+function rerenderCurrentScreen() {
+  var a = document.querySelector('.screen.active');
+  if (!a) return;
+  if (a.id === 'home') updateHomeStats();
+  if (a.id === 'study-subjects') renderStudyMain();
+  if (a.id === 'study-questions') renderQuestions();
+  if (a.id === 'test-subjects') renderTestMain();
 }
 function buildFromSheet(questions, templates, richText) {
   DATA = {}; stars = {};
