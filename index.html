@@ -254,6 +254,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
     </div>
     <button class="settings-btn" onclick="saveAndSync()">저장 후 동기화</button>
     <div class="settings-status" id="sync-status"></div>
+    <div class="settings-hint" id="last-sync-info" style="text-align:center;margin-top:4px"></div>
     <div class="settings-section" style="margin-top:32px">
       <div class="settings-label">사용 방법</div>
       <div style="font-size:12px;color:var(--muted);line-height:1.8">
@@ -264,7 +265,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
         5. 배포 URL을 위에 붙여넣고 저장
       </div>
     </div>
-    <div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:20px">build 2026-09-07-1</div>
+    <div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:20px">build 2026-09-07-2</div>
   </div>
 </div>
 
@@ -444,7 +445,10 @@ function loadData() {
 // 다른 기기에서 바꾼 별점 등의 변경사항을 반영한다.
 function refreshFromSheet() {
   jsonpLoad(SCRIPT_URL, function(d) {
-    if (!d || !d.ok || !d.questions || !d.questions.length) return;
+    if (!d || !d.ok || !d.questions || !d.questions.length) {
+      recordSyncResult(false, (d && d.error) ? d.error : '응답에 문제 없음(count=' + (d && d.count) + ')');
+      return;
+    }
     // 아직 시트 반영이 확인되지 않은 로컬 별점 변경은, 서버의 예전 값으로
     // 덮어쓰지 않고 로컬 값을 그대로 유지한다 (전송 완료되면 자연히 동기화됨).
     if (Object.keys(pendingStars).length) {
@@ -455,7 +459,28 @@ function refreshFromSheet() {
     buildFromSheet(d.questions, d.templates, d.richText);
     try { localStorage.setItem('opic_stars', JSON.stringify(stars)); } catch(e) {}
     rerenderCurrentScreen();
-  }, function() { /* 오프라인 등으로 실패하면 캐시된 화면 그대로 유지 */ });
+    recordSyncResult(true, d.questions.length + '개 로드');
+  }, function(err) { recordSyncResult(false, err); });
+}
+// 마지막 자동 동기화 결과를 기록해서 설정 화면에서 눈으로 확인할 수 있게 한다.
+// (동기화가 조용히 실패해도 티가 안 나던 문제를 진단하기 위함)
+function recordSyncResult(ok, msg) {
+  try {
+    localStorage.setItem('opic_last_sync', JSON.stringify({t: Date.now(), ok: ok, msg: msg}));
+  } catch(e) {}
+  renderLastSyncInfo();
+}
+function renderLastSyncInfo() {
+  var el = document.getElementById('last-sync-info');
+  if (!el) return;
+  var raw = null;
+  try { raw = JSON.parse(localStorage.getItem('opic_last_sync') || 'null'); } catch(e) {}
+  if (!raw) { el.textContent = ''; return; }
+  var d = new Date(raw.t);
+  var pad = function(n){ return (n<10?'0':'')+n; };
+  var time = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  el.textContent = '마지막 자동 동기화 ' + time + ' — ' + (raw.ok ? '성공 (' + raw.msg + ')' : '실패: ' + raw.msg);
+  el.style.color = raw.ok ? '' : '#e24b4a';
 }
 function rerenderCurrentScreen() {
   var a = document.querySelector('.screen.active');
@@ -524,6 +549,7 @@ function goTo(id) {
   if (id === 'settings') {
     var su = document.getElementById('script-url');
     if (su) su.value = SCRIPT_URL;
+    renderLastSyncInfo();
   }
 }
 function saveAndSync() {
