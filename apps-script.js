@@ -72,13 +72,15 @@ function doGet(e) {
       var sh2  = ss2.getSheetByName(SHEET_NAME);
       var rows = sh2.getLastRow();
       var vals = sh2.getRange(1, 1, rows, 4).getValues();
+      var found = false;
       for (var k = 1; k < vals.length; k++) {
         if (isIndexRow(vals[k][0]) && parseInt(String(vals[k][0]).trim()) === qid) {
           sh2.getRange(k + 1, 4).setValue(starToProgress(star));
+          found = true;
           break;
         }
       }
-      return makeResponse(e, {ok: true});
+      return makeResponse(e, found ? {ok: true} : {ok: false, error: 'id ' + qid + '에 해당하는 행을 못 찾음'});
     }
 
     var ss = SpreadsheetApp.getActiveSpreadsheet();

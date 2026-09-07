@@ -255,6 +255,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
     <button class="settings-btn" onclick="saveAndSync()">저장 후 동기화</button>
     <div class="settings-status" id="sync-status"></div>
     <div class="settings-hint" id="last-sync-info" style="text-align:center;margin-top:4px"></div>
+    <div class="settings-hint" id="last-star-write-info" style="text-align:center;margin-top:4px"></div>
     <div class="settings-section" style="margin-top:32px">
       <div class="settings-label">사용 방법</div>
       <div style="font-size:12px;color:var(--muted);line-height:1.8">
@@ -265,7 +266,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
         5. 배포 URL을 위에 붙여넣고 저장
       </div>
     </div>
-    <div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:20px">build 2026-09-07-3</div>
+    <div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:20px">build 2026-09-07-4</div>
   </div>
 </div>
 
@@ -566,6 +567,7 @@ function goTo(id) {
     var su = document.getElementById('script-url');
     if (su) su.value = SCRIPT_URL;
     renderLastSyncInfo();
+    renderLastStarWriteInfo();
   }
 }
 function saveAndSync() {
@@ -619,7 +621,29 @@ function setStar(id, val) {
   updateHomeStats();
 }
 function sendStarToSheet(id, val) {
-  jsonpLoad(SCRIPT_URL + '&action=setStar&id=' + id + '&star=' + val, function(){}, function(){});
+  jsonpLoad(SCRIPT_URL + '&action=setStar&id=' + id + '&star=' + val,
+    function(d) { recordStarWriteResult(id, val, !!(d && d.ok), d && d.error); },
+    function(err) { recordStarWriteResult(id, val, false, err); });
+}
+// 별점 저장 시도 결과(성공/실패 사유)를 기록해서 설정 화면에서 바로 확인할 수 있게 한다.
+function recordStarWriteResult(id, val, ok, err) {
+  try {
+    localStorage.setItem('opic_last_star_write', JSON.stringify({t: Date.now(), id: id, val: val, ok: ok, err: err || ''}));
+  } catch(e) {}
+  renderLastStarWriteInfo();
+}
+function renderLastStarWriteInfo() {
+  var el = document.getElementById('last-star-write-info');
+  if (!el) return;
+  var raw = null;
+  try { raw = JSON.parse(localStorage.getItem('opic_last_star_write') || 'null'); } catch(e) {}
+  if (!raw) { el.textContent = ''; return; }
+  var d = new Date(raw.t);
+  var pad = function(n){ return (n<10?'0':'')+n; };
+  var time = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  el.textContent = '마지막 별점 저장 시도 ' + time + ' (id=' + raw.id + ', 값=' + raw.val + ') — ' +
+    (raw.ok ? '성공' : '실패: ' + (raw.err || '알 수 없음'));
+  el.style.color = raw.ok ? '' : '#e24b4a';
 }
 function markStarPending(id) {
   pendingStars[id] = true;
