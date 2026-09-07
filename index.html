@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="OPIc AL go go">
+<title>OPIc AL go go</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+
+:root{--safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);--r:14px;--r-sm:10px}
+body.light{--bg:#f5f5f0;--bg2:#fff;--bg3:#eeeee9;--border:#e0e0d8;--text:#1a1a18;--muted:#888880;--muted2:#c8c8c0;--accent:#2563eb;--accent-bg:#eff6ff;--accent-text:#1d4ed8;--green:#16a34a;--green-bg:#f0fdf4;--green-text:#15803d;--star:#f59e0b;--star-off:#d1d5db;--hdr:#fff;--tmpl-bg:#fffbeb;--tmpl-border:#fde68a;--tmpl-title:#92400e;--pill-on:#1a1a18;--pill-on-text:#fff}
+body.dark{--bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#242424;--border:#2e2e2e;--text:#f0f0f0;--muted:#888;--muted2:#444;--accent:#60a5fa;--accent-bg:#1e3a5f;--accent-text:#93c5fd;--green:#4ade80;--green-bg:#0f2a1a;--green-text:#4ade80;--star:#fbbf24;--star-off:#374151;--hdr:#1a1a1a;--tmpl-bg:#1e1800;--tmpl-border:#78350f;--tmpl-title:#fde68a;--pill-on:#f0f0f0;--pill-on-text:#0f0f0f}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;transition:background .2s,color .2s}
+.screen{display:none;height:100dvh;flex-direction:column;overflow:hidden}
+.screen.active{display:flex}
+/* HEADER */
+.hdr{padding:calc(var(--safe-top) + 12px) 16px 12px;background:var(--hdr);border-bottom:.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:10px;transition:background .2s}
+.hdr-title{font-size:17px;font-weight:700;flex:1}
+.hdr-sub{font-size:12px;color:var(--muted);margin-top:1px}
+.icon-btn{width:36px;height:36px;border-radius:50%;border:.5px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.icon-btn svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2}
+.theme-btn{font-size:16px;width:36px;height:36px;border-radius:50%;border:.5px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+/* HOME */
+/* HOME layout: flex column, 3 zones */
+#home{flex-direction:column;overflow:hidden}
+.home-hdr{padding:calc(var(--safe-top)+14px) 20px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.home-hdr-title{display:flex;flex-direction:column}
+.home-tag{font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
+.home-title{font-size:24px;font-weight:700;line-height:1.2}
+.home-title span{color:var(--accent)}
+.home-theme-toggle{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:50px;border:.5px solid var(--border);background:var(--bg2);cursor:pointer;font-size:13px;font-weight:500;font-family:'Noto Sans KR',sans-serif;color:var(--muted);flex-shrink:0}
+/* 중앙 대시보드 */
+.home-dash{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px;gap:10px}
+.home-desc{font-size:12px;color:var(--muted);line-height:1.6;text-align:center;margin-bottom:4px}
+.stats-card{width:100%;background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:16px 12px}
+.stats-row{display:flex;gap:0}
+.stat-box{flex:1;text-align:center;padding:8px 4px;position:relative}
+.stat-box+.stat-box::before{content:'';position:absolute;left:0;top:20%;height:60%;width:.5px;background:var(--border)}
+.stat-num{font-size:20px;font-weight:700;color:var(--accent)}
+.stat-lbl{font-size:9px;color:var(--muted);margin-top:2px}
+.stats-divider{height:.5px;background:var(--border);margin:10px 0}
+/* 하단 버튼 */
+.home-btns{padding:12px 20px calc(var(--safe-bot)+16px);display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.mode-btn{width:100%;padding:14px 16px;border-radius:var(--r-sm);border:.5px solid var(--border);font-family:'Noto Sans KR',sans-serif;cursor:pointer;display:flex;align-items:center;gap:12px;transition:opacity .1s;background:var(--bg2);color:var(--text)}
+.mode-btn:active{opacity:.7}
+.mode-btn-icon{font-size:18px;flex-shrink:0}
+.mode-btn-text{text-align:left;flex:1}
+.mode-btn-title{font-size:14px;font-weight:700}
+.mode-btn-sub{font-size:11px;opacity:.6;margin-top:1px}
+.theme-pill{padding:7px 18px;border-radius:50px;border:.5px solid var(--border);background:var(--bg2);font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;font-family:'Noto Sans KR',sans-serif}
+.theme-pill.active{background:var(--pill-on);color:var(--pill-on-text);border-color:transparent}
+/* FILTER BAR */
+.filter-bar{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;flex-shrink:0;border-bottom:.5px solid var(--border);background:var(--hdr);scrollbar-width:none}
+.filter-bar::-webkit-scrollbar{display:none}
+.fpill{padding:6px 14px;border-radius:50px;border:.5px solid var(--border);background:var(--bg2);font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:'Noto Sans KR',sans-serif}
+.fpill.active{background:var(--pill-on);color:var(--pill-on-text);border-color:transparent}
+/* LIST */
+.list-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.list-pad{padding:10px 16px}
+.subj-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;cursor:pointer;transition:background .15s}
+.subj-item:active{background:var(--bg3)}
+.subj-name{font-size:16px;font-weight:500}
+.subj-right{display:flex;align-items:center;gap:8px}
+.subj-count{font-size:12px;color:var(--muted)}
+.chev svg{width:16px;height:16px;stroke:var(--muted2);fill:none;stroke-width:2}
+.q-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;cursor:pointer;transition:background .15s}
+.q-item:active{background:var(--bg3)}
+.q-item-left{flex:1;min-width:0}
+.q-item-num{font-size:11px;color:var(--muted);margin-bottom:3px;font-weight:500}
+.q-item-title{font-size:15px;font-weight:500;margin-bottom:4px}
+.q-item-prev{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.q-item-stars{flex-shrink:0;display:flex;gap:2px;margin-top:2px}
+/* SCRIPT VIEW */
+.sv-body{flex:1;overflow-y:auto;padding:20px 16px;-webkit-overflow-scrolling:touch}
+.sv-section-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.sv-question-box{font-size:14px;line-height:1.75;white-space:pre-wrap;background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:20px}
+.sv-script-box{font-size:15px;line-height:1.9;white-space:pre-wrap;background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:20px}
+.sv-script-box span,.ans-reveal span{font-weight:500}
+.star-card{background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.star-card-label{font-size:13px;color:var(--muted);flex:1}
+.stars-row{display:flex;gap:8px}
+.star-btn{background:none;border:none;padding:2px;cursor:pointer;line-height:1;transition:transform .1s;user-select:none;font-size:30px}
+.star-btn:active{transform:scale(1.3)}
+.star{font-size:30px;cursor:pointer;line-height:1;transition:transform .1s;user-select:none}
+.star.on{color:var(--star)}
+.star.off{color:var(--star-off)}
+.star:active{transform:scale(1.3)}
+.sv-nav{display:flex;gap:10px;padding:12px 16px;padding-bottom:max(12px,calc(var(--safe-bot)+12px));border-top:.5px solid var(--border);background:var(--hdr);flex-shrink:0}
+.nav-btn{flex:1;padding:13px;border-radius:var(--r-sm);border:.5px solid var(--border);background:var(--bg2);font-size:14px;font-weight:500;color:var(--text);font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:background .1s}
+.nav-btn:active{background:var(--bg3)}
+.nav-btn:disabled{opacity:.3;cursor:default}
+/* TEST */
+.test-body{flex:1;overflow-y:auto;padding:20px 16px;-webkit-overflow-scrolling:touch}
+.test-topic-badge{display:inline-block;background:var(--accent-bg);color:var(--accent-text);font-size:12px;font-weight:700;padding:4px 12px;border-radius:50px;margin-bottom:12px}
+.test-q-text{font-size:16px;line-height:1.75;white-space:pre-wrap;margin-bottom:28px}
+.test-prog{height:3px;background:var(--bg3);border-radius:2px;margin-bottom:0;flex-shrink:0}
+.test-prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s}
+.ans-toggle{width:100%;padding:14px;border-radius:var(--r);border:.5px solid var(--border);background:var(--bg2);font-size:14px;font-weight:500;color:var(--muted);font-family:'Noto Sans KR',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
+.ans-toggle.open{color:var(--green-text);border-color:var(--green);background:var(--green-bg)}
+.ans-toggle svg{width:16px;height:16px;flex-shrink:0;transition:transform .2s;stroke:currentColor;fill:none;stroke-width:2.5}
+.ans-toggle.open svg{transform:rotate(180deg)}
+.ans-reveal{display:none;margin-top:12px;background:var(--green-bg);border:.5px solid var(--green);border-radius:var(--r);padding:16px;font-size:14px;line-height:1.85;white-space:pre-wrap;color:var(--text);animation:fadeDown .2s ease}
+.ans-reveal.show{display:block}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.test-nav{display:flex;gap:10px;padding:12px 16px;padding-bottom:max(12px,calc(var(--safe-bot)+12px));border-top:.5px solid var(--border);background:var(--hdr);flex-shrink:0}
+/* DRAWER */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100}
+.overlay.open{display:block}
+.drawer{position:fixed;top:0;right:-100%;bottom:0;width:min(90vw,380px);background:var(--bg2);z-index:101;display:flex;flex-direction:column;transition:right .3s cubic-bezier(.4,0,.2,1);border-left:.5px solid var(--border)}
+.drawer.open{right:0}
+.drawer-hdr{padding:calc(var(--safe-top)+14px) 16px 14px;border-bottom:.5px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--hdr);flex-shrink:0}
+.drawer-title{font-size:16px;font-weight:700;flex:1}
+.drawer-body{flex:1;overflow-y:auto;padding:12px;-webkit-overflow-scrolling:touch}
+.tmpl-list-item{padding:14px 16px;border-bottom:.5px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .15s}
+.tmpl-list-item:active{background:var(--bg3)}
+.tmpl-list-name{font-size:14px;font-weight:500;color:var(--text)}
+.tmpl-detail{padding:16px}
+.tmpl-detail-name{font-size:12px;font-weight:700;color:var(--tmpl-title);text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px}
+.tmpl-detail-script{font-size:13px;line-height:1.75;white-space:pre-wrap;color:var(--text)}
+.tmpl-back{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:.5px solid var(--border);cursor:pointer;color:var(--accent);font-size:14px;font-weight:500}
+.tmpl-back svg{width:16px;height:16px;stroke:var(--accent);fill:none;stroke-width:2}
+/* DONE */
+#test-done{justify-content:center;align-items:center;text-align:center;padding:40px 28px}
+.done-icon{font-size:56px;margin-bottom:16px}
+.done-title{font-size:26px;font-weight:700;margin-bottom:8px}
+.done-sub{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:36px;white-space:pre-wrap}
+.done-btns{display:flex;flex-direction:column;gap:12px;width:100%}
+.done-primary{background:var(--accent);color:#fff;border:none;border-radius:var(--r);padding:16px;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer}
+.done-secondary{background:var(--bg2);color:var(--muted);border:.5px solid var(--border);border-radius:var(--r);padding:15px;font-size:14px;font-weight:500;font-family:'Noto Sans KR',sans-serif;cursor:pointer}
+.empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:14px}
+
+/* LOADING */
+#loading{height:100dvh;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-txt{font-size:14px;color:var(--muted)}
+.load-err{font-size:13px;color:#e24b4a;max-width:280px;text-align:center;line-height:1.6}
+.load-err-btn{margin-top:8px;padding:10px 24px;border-radius:var(--r);border:.5px solid var(--border);background:var(--bg2);font-size:13px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;color:var(--text)}
+/* SETTINGS */
+#settings{justify-content:flex-start}
+.settings-body{flex:1;overflow-y:auto;padding:20px 20px;-webkit-overflow-scrolling:touch}
+.settings-section{margin-bottom:28px}
+.settings-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.settings-input{width:100%;padding:12px 14px;border-radius:var(--r-sm);border:.5px solid var(--border);background:var(--bg2);font-size:14px;font-family:'Noto Sans KR',sans-serif;color:var(--text);outline:none}
+.settings-input:focus{border-color:var(--accent)}
+.settings-hint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
+.settings-btn{width:100%;padding:14px;border-radius:var(--r);border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer}
+.settings-status{font-size:12px;color:var(--green-text);text-align:center;margin-top:10px;min-height:18px}
+.settings-status.err{color:#e24b4a}
+</style>
+</head>
+<body class="light">
+
+<!-- LOADING -->
+<div id="loading" style="display:flex">
+  <div class="spin"></div>
+  <div class="load-txt" id="load-txt">데이터 불러오는 중...</div>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="home">
+
+  <!-- 상단: 앱 제목 + 우상단 테마 토글 -->
+  <div class="home-hdr">
+    <div class="home-hdr-title">
+      <div class="home-tag">OPIc AL go go</div>
+      <div class="home-title">스크립트 <span>마스터</span></div>
+    </div>
+    <div class="home-theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()">
+      <span id="theme-icon">☀️</span>
+      <span id="theme-label">라이트</span>
+    </div>
+  </div>
+
+  <!-- 중앙: 대시보드 -->
+  <div class="home-dash">
+    <div class="home-desc">스터디 모드로 공부하고, 테스트로 실력을 확인해요</div>
+    <div class="stats-card">
+      <!-- 1행: 주제, 전체 -->
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-num" id="st-subj">—</div>
+          <div class="stat-lbl">주제</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="st-total">—</div>
+          <div class="stat-lbl">전체 문제</div>
+        </div>
+      </div>
+      <div class="stats-divider"></div>
+      <!-- 2행: 별점별 -->
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-num" id="st0">—</div>
+          <div class="stat-lbl">미평가</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="st1">—</div>
+          <div class="stat-lbl">★</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="st2">—</div>
+          <div class="stat-lbl">★★</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="st3">—</div>
+          <div class="stat-lbl">★★★</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 하단: 모드 버튼 3개 -->
+  <div class="home-btns">
+    <button class="mode-btn" onclick="enterMode('study')">
+      <div class="mode-btn-icon">📖</div>
+      <div class="mode-btn-text">
+        <div class="mode-btn-title">스터디 모드</div>
+        <div class="mode-btn-sub">주제별 문제 + 스크립트 보기</div>
+      </div>
+    </button>
+    <button class="mode-btn" onclick="enterMode('test')">
+      <div class="mode-btn-icon">✏️</div>
+      <div class="mode-btn-text">
+        <div class="mode-btn-title">테스트 모드</div>
+        <div class="mode-btn-sub">랜덤 또는 주제 선택 · 문제 풀기</div>
+      </div>
+    </button>
+    <button class="mode-btn" onclick="goTo('settings')">
+      <div class="mode-btn-icon">⚙️</div>
+      <div class="mode-btn-text">
+        <div class="mode-btn-title">구글 시트 연동</div>
+        <div class="mode-btn-sub" id="sync-status-lbl">미설정</div>
+      </div>
+    </button>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="screen" id="settings">
+  <div class="hdr">
+    <div class="icon-btn" onclick="goTo('home')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+    <div style="flex:1"><div class="hdr-title">구글 시트 연동</div></div>
+    <div class="theme-btn" onclick="toggleTheme()">🌙</div>
+  </div>
+  <div class="settings-body">
+    <div class="settings-section">
+      <div class="settings-label">Apps Script 웹앱 URL</div>
+      <input class="settings-input" id="script-url" type="url" placeholder="https://script.google.com/macros/s/..." />
+      <div class="settings-hint">구글 시트에서 Apps Script 배포 후 URL을 붙여넣으세요.<br>설정하면 스크립트·P/F 데이터를 시트에서 자동 로드하고 별점 변경 시 시트에 바로 저장돼요.</div>
+    </div>
+    <button class="settings-btn" onclick="saveAndSync()">저장 후 동기화</button>
+    <div class="settings-status" id="sync-status"></div>
+    <div class="settings-section" style="margin-top:32px">
+      <div class="settings-label">사용 방법</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.8">
+        1. 구글 드라이브에서 엑셀 파일 열기 → 구글 시트로 저장<br>
+        2. 확장 프로그램 → Apps Script 열기<br>
+        3. <code style="background:var(--bg3);padding:1px 4px;border-radius:4px;font-size:11px">apps-script.js</code> 코드 전체 붙여넣기<br>
+        4. 배포 → 새 배포 → 웹앱 → 액세스: 모든 사용자<br>
+        5. 배포 URL을 위에 붙여넣고 저장
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STUDY SUBJECTS -->
+<div class="screen" id="study-subjects">
+  <div class="hdr">
+    <div class="icon-btn" onclick="goTo('home')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+    <div style="flex:1"><div class="hdr-title">스터디 모드</div></div>
+    <div class="theme-btn" onclick="toggleTheme()">🌙</div>
+    <div class="icon-btn" onclick="openDrawer()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+  </div>
+  <div class="filter-bar" id="sf-study-subj">
+    <div class="fpill active" onclick="setStudyFilter('all',this)">주제별</div>
+    <div class="fpill" onclick="setStudyFilter('0',this)">미평가</div>
+    <div class="fpill" onclick="setStudyFilter('1',this)">★</div>
+    <div class="fpill" onclick="setStudyFilter('2',this)">★★</div>
+    <div class="fpill" onclick="setStudyFilter('3',this)">★★★</div>
+  </div>
+  <div class="list-body"><div class="list-pad" id="subj-list"></div></div>
+</div>
+
+<!-- STUDY QUESTIONS -->
+<div class="screen" id="study-questions">
+  <div class="hdr">
+    <div class="icon-btn" onclick="goTo('study-subjects')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+    <div style="flex:1"><div class="hdr-title" id="sq-title"></div><div class="hdr-sub" id="sq-sub"></div></div>
+    <div class="theme-btn" onclick="toggleTheme()">🌙</div>
+    <div class="icon-btn" onclick="openDrawer()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+  </div>
+  <div class="filter-bar" id="sf-study-q">
+    <div class="fpill active" onclick="setQFilter('all',this)">전체</div>
+    <div class="fpill" onclick="setQFilter('0',this)">미평가</div>
+    <div class="fpill" onclick="setQFilter('1',this)">★</div>
+    <div class="fpill" onclick="setQFilter('2',this)">★★</div>
+    <div class="fpill" onclick="setQFilter('3',this)">★★★</div>
+  </div>
+  <div class="list-body"><div class="list-pad" id="q-list"></div></div>
+</div>
+
+<!-- STUDY SCRIPT -->
+<div class="screen" id="study-script">
+  <div class="hdr">
+    <div class="icon-btn" onclick="goTo('study-questions')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+    <div style="flex:1"><div class="hdr-title" id="sv-title"></div><div class="hdr-sub" id="sv-sub"></div></div>
+    <div class="theme-btn" onclick="toggleTheme()">🌙</div>
+    <div class="icon-btn" onclick="openDrawer()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+  </div>
+  <div class="sv-body" id="sv-body"></div>
+  <div class="sv-nav">
+    <button class="nav-btn" id="sv-prev" onclick="moveStudyQ(-1)">← 이전</button>
+    <button class="nav-btn" id="sv-next" onclick="moveStudyQ(1)">다음 →</button>
+  </div>
+</div>
+
+<!-- TEST SUBJECTS -->
+<div class="screen" id="test-subjects">
+  <div class="hdr">
+    <div class="icon-btn" onclick="goTo('home')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+    <div style="flex:1"><div class="hdr-title">테스트 모드</div><div class="hdr-sub" id="test-subj-sub">주제 선택 또는 랜덤</div></div>
+    <div class="theme-btn" onclick="toggleTheme()">🌙</div>
+    <div class="icon-btn" onclick="openDrawer()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+  </div>
+  <div class="filter-bar" id="sf-test-subj">
+    <div class="fpill active" onclick="setTestFilter('all',this)">주제별</div>
+    <div class="fpill" onclick="setTestFilter('0',this)">미평가</div>
+    <div class="fpill" onclick="setTestFilter('1',this)">★</div>
+    <div class="fpill" onclick="setTestFilter('2',this)">★★</div>
+    <div class="fpill" onclick="setTestFilter('3',this)">★★★</div>
+  </div>
+  <div style="padding:10px 16px 0;flex-shrink:0">
+    <button onclick="startRandom()" style="width:100%;padding:13px;border-radius:var(--r);background:var(--accent);color:#fff;border:none;font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;margin-bottom:4px">랜덤 문제 뽑기 🎲</button>
+    <div id="random-desc" style="font-size:11px;color:var(--muted);text-align:center;padding-bottom:6px">랜덤 주제 하나를 뽑아요</div>
+  </div>
+  <div class="list-body"><div class="list-pad" id="test-subj-list"></div></div>
+</div>
+
+<!-- TEST QUIZ -->
+<div class="screen" id="test-quiz">
+  <div class="hdr">
+    <div class="icon-btn" onclick="goTo('test-subjects')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+    <div style="flex:1"><div class="hdr-title" id="tq-title"></div><div class="hdr-sub" id="tq-sub"></div></div>
+    <div class="theme-btn" onclick="toggleTheme()">🌙</div>
+    <div class="icon-btn" onclick="openDrawer()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+  </div>
+  <div class="test-prog"><div class="test-prog-fill" id="tq-prog"></div></div>
+  <div class="test-body" id="tq-body"></div>
+  <div class="test-nav">
+    <button class="nav-btn" id="tq-prev" onclick="moveTestQ(-1)">← 이전</button>
+    <button class="nav-btn" id="tq-next" onclick="moveTestQ(1)">다음 →</button>
+  </div>
+</div>
+
+<!-- TEST DONE -->
+<div class="screen" id="test-done">
+  <div class="done-icon">🎉</div>
+  <div class="done-title">수고했어요!</div>
+  <div class="done-sub" id="done-sub"></div>
+  <div class="done-btns">
+    <button class="done-primary" onclick="startRandom()">랜덤 문제 뽑기 🎲</button>
+    <button class="done-secondary" onclick="goTo('test-subjects')">주제 선택으로</button>
+    <button class="done-secondary" onclick="goTo('home')">홈으로</button>
+  </div>
+</div>
+
+<!-- DRAWER: 대표유형 (리스트 → 상세) -->
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-hdr">
+    <div class="drawer-title" id="drawer-title">대표 유형</div>
+    <div class="icon-btn" onclick="closeDrawer()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</div>
+
+<script>
+// ── 구글 시트 연동 설정 ──
+var SCRIPT_URL = localStorage.getItem('opic_script_url') || '';
+
+// ── 앱 데이터 (시트 로드 또는 번들 폴백) ──
+var FALLBACK_TEMPLATES = [{"name":"\uc790\uae30 \uc18c\uac1c","script":"Hello eva. Nice to meet you.\nI'm Chloe. I'm in my 20's.\nI was born in Busan.\nNow, I'm living alone in Suwon city which is big city in Korea.\nAs for my personality,\nI try to think everything positively.\nIn my free time,\nI like to listen music while walking at park.\nWell that's all about me.\nAnd wish me luck!"},{"name":"1. \ud589\ub3d9 \ubb18\uc0ac","script":"Okay so, Many people [ enjoy going to parks ], and without a doubt, [\ub2e4\uc6c9\u314e] I'm one of them.\nI'm truly fond of [it], and the main reason I like it is that it allows [\uc5bc \ub77c-\uc6b0\u3145]\nme to [ recharge my batteries ].\nWell, I believe it suits me well, so let me share how I [ enjoy my time at the\npark ].\nLet me think, so, I [ usually go to parks ] with my [ friends ] because we can\ncreate great memories together!\nWhat's more, they enjoy it just as much as I do.\nAnd, It also builds a feeling of togetherness and makes our relationship\nstronger.\nWell, I usually [ go to a lake park near my place], which is just right for me.\nI mean, It's kept very nice and it's super [\uc4f0-\uc6b0\ud384] COMfortable, [\ucef4 f \u314d\n\ud130\ube14] so I love being there when I have free time.\nActually, I've been really [slammed] with work, so I don't get to do it as\nmuch as I'd like.\nBut of course, I would [\uc6b0-\uc73c\ub4dc] [ go there ] more when I have more time!\nAnyway, I really think [ going to parks ] is the best way to [ clear my\nmind ].\nAnd, This is how I enjoy [my time at parks ]. That's it."},{"name":"2. \ucd5c\uadfc \uacbd\ud5d8","script":"Umm, the other day, I got a chance to visit a [ park ] with my [ friend ].\nHonestly, I wasn't too keen on [ going to the park ] at first,\nbut my [ friend ] really PUshed [\ud478-\uc273\u3137] for it, so I gave [\uac8c-\uc774v\u3142] in and\nwent along.\nLooking back, I ended up having a blast and found [ walking in nature ]\nsurprisingly enjoyable.\nIt was an unexPECted way to [ release my stress ],\nand I left feeling [f\uc774-\uc77c\ub9c1] lighter and more upLIfted than I had in a long\n[\ub7ec-\uc5c9] time.\nIt was DEfinitely time well spent.\nWhat else can I share?\nOh, right... Just like I mentioned before, life had been piling on the stress\nwith work and all.\nSo, I had a great time talking with my [ friend ].\nIt was inCREdibly comFORting and just what I needed. [\ub2c8-\uc774\ub51b\u3137] You know\nthat feeling, right?\nAnyway, I'm already looking forward to the next opportunity to [ visit the park ]\nagain. Can't wait!"},{"name":"3. \uc0ac\ubb3c \ubb18\uc0ac","script":"So, I bought this [ Samsung Galaxy Phone ] a few years back during a killer\nsale.\nI purchased[\ud384\uccb4\uc2a4\u3137] it from a local store known for its quality seLECtion\nand excellent service.\nYou know, I was just browsing around and couldn't believe my luck. It was\nlike hitting the jackpot!\nSo I had to get them right away.\nFirst off, my favorite color is [ white ], and it's actually reflected in most of\nthe items I own. [\uc624-\uc6b4]\nEven my [ phone ] is in [ white ] because it's both [th \ubc14\ub78c\ube7c\uae30] [ bright [\ube0c\n-\ub878\uc78d\u314e] and neat [\ub2c8-\uc78d\u314e] ],\nwhich is why so many of my posSEssions [\ud3ec-\uc6b0 z\uc81c \uc158\u3145] share this color\npalette.\nWell... it's the latest [\ub808\uc78d\u314e\ud2f0\uc2b7\u314e] model [\ubaa8-\uc5b4\u3137\ub97c] and it's consTRUCted\nfrom [ aluminum ],\nmaking it both durable [\ub514-\uc720 r\ub7ec \ube14] and easy to handle.\nMost imPORtantly, [\uc784 \ud3ec-\uc5bc \ud2bc\ud2c0\ub9ac] my [ phone ]'s design strikes a perfect\nbalance between functioNALity and style,\nI mean, it's ideal for spending free time and working, as well.\nI like to use the camera [\ucf10-\uc73c \ub878-\uc544] app to take the photos [f\ud3ec-\uc624\ub3c4\u3145]\nof the foods I enjoy.\nAnyway, I'm really satisfied with everything about it and this is pretty much\nall about my [ phone ]."},{"name":"4. \uc778\ubb3c \ubb18\uc0ac_\uc720\uba85\uc778","script":"Well, I can think of [ my favorite K-Pop singer], named IU.\nI think I first got to know her when I was [14].\nI had a chance to [ watch her music video because my friend was a huge\nfan of IU back then] and that's how I first [ saw ] her.\nActually, I can guarantee that she is the most diligent and talented person\nI've ever seen.\nPlus, she is very professional at her job, which is [ singing] and that's why\nI'm a big fan of her for a long time.\nHonestly, all of her [ songs] are absolutely popular, so whenever her new\n[ album ] is released, I just go over it again and again.\nWell,, What else, (\uc0dd\uac01 \uace0\ubbfc),, She is also a very well-known [actress], as\nwell\nI love all of her [series], but\nIf I have to choose one, I would say my favorite one is a [series] called\n'Dream High'\nAnyway, she is literally [\ub9ac-\u3139\ub354\ub7f4r\ub9ac] my inspiration [\uc778-\uc2a4 \ud37c \ub920-\uc774 \uc158]\nand I wish her all the best!"},{"name":"4. \uc778\ubb3c \ubb18\uc0ac_\uc77c\ubc18\uc778","script":"Well, I can think of [ one of my friends], named Jenny.\nI think I first got to know her when I was [14].\nI had a chance to [ take the same class] and that's how I first [ met ] her.\nShe is very easy-going[\uc774-z\uc9c0] and friendly and... she makes me feel relaxed.\nAlso, we share many things since we have so much in common.\nShe lives in [ ten minutes ] away so TEChnically, we live in a same\nneighborhood.\nSo, I honestly spend a lot of time with her even on weekends or on my\nvacation, as well.\nWe usually binge-watch Netflix series together at my place.\nAnd of course, I really want to spend my next vacation with her again.\nYou know, she works out every single day and also tries to have a balanced\n[\ubca0\uc744\ub7f0\uc2ab\u314e] diet to stay healthy.\nWhat else,, she is always in a perfect shape which motivates [\ubaa8-\uc6b0 \ud2f0 \ubca0\uc78b\nch\u314a] me to work out harder [\ud5c8-\uc5bcr\ub35c] as well.\nAnyway, she is literally [\ub9ac-\u3139\ub354\ub7f4r\ub9ac] my inspiration [\uc778-\uc2a4 \ud37c \ub920-\uc774 \uc158]\nand I wish her all the best!"},{"name":"5. \uc7a5\uc18c \ubb18\uc0ac_\uc2e4\uc678","script":"Okay, I got this one. \uc9c0\ud615/\ud574\ubcc0: Korea is a peninsula [\ud398\ub2cc\uc220\ub77c], so there are\nmany beaches to visit\nSo, When it comes to a [domestic trip], I often go to [a beach called \ud574\uc6b4\ub300\nin Busan].\nWell, It's quite far from my place which takes about two hours by train.\nso let me describe the [beach] in more details.\nThis [beach] is very popular among people, so every time I go it's always\ncrowded.\nBut, The atmosphere there is [ peaceful ].\nAlso, the air is super fresh and the water is crystal clear. [\ud06c\ub9ac\uc2a4\ud138 \ud074\ub9ac-\uc5bc]\nAnd! the scenery [\uc528-\uc774\ub108\ub93c] is absolutely breathtaking. [\uc228 \ub9c9\ud790\uc815\ub3c4\ub85c \uc544\n\ub984\ub2e4\uc6b4]\nWell... what else,,?\nPlus, there is a caf\u00e9 nearby the entrance of the [beach].\nSo, I often drop by to grab a cup of coffee.\nAnyway, I love this [beach] so much!"},{"name":"5. \uc7a5\uc18c \ubb18\uc0ac_\uc2e4\ub0b4","script":"Okay, I got this one.\nSo, I live in a studio apartment in Suwon city alone.\nWell, It's pretty close to my office which takes about 10 mins by car.\nso let me describe [my place] in more details.\nWell, The ceiling inside is very high so it looks even more luxury.\nIt is also very spacious[\uc2a4 \ud398-\uc774 \uc167\u3145]\nso there are lots of furniture and appliances.\nMy favorite place to be is the sofa because it's very comfortable and it's a\nperfect place to take a quick nap.\nI also live right next to a lake park.\nSo, I can enjoy beautiful sceneries [\uc528-\uc774\ub108\ub93c\u3145] over the windows!\nWell... what else,,?\nPlus, there is a huge parking lot in my apartment complex.\nSo, I can easily park there whenever I come back from work.\nAnyway, I love [my place] so much!"},{"name":"6. \uc2dc\uac04 \uc21c\uc11c","script":"Okay, let me think about it...\nSo, I usually like to plan everything ahead to avoid any (last-minute) issues.\nBefore I go to the [dentist], I check directions and look up the opening hours\non my phone.\nI also book [an appointment] in advance because, honestly, I really don't like\nwaiting in long lines.\nThis is kind of my routine to save time and avoid any hassle when I get there.\nThe [dental clinic] is quite far from my place, so I usually drive there because,\nhonestly, it's the easiest way to get there.\nWhen I get there, the first thing I do is using the bathroom.\nThen I wait in the lobby until the nurse calls my name.\nOnce it's finally my turn, I go in and tell the dentist if I have any problems\nwith my teeth.\nAfter [the appointment], I sometimes stop by a drugstore nearby to pick up\nanything I might need, like extra floss or mouthwash.\nAnd if I'm feeling too tired, I just head straight home to relax.\nAnyway, that's pretty much everything I do when I [make an appointment\nwith the dentist]."},{"name":"7. \uc900\ube44\ubb3c","script":"Actually, When we [ go on trips / go to the beach ], everyone's got a\nsmartphone these days.\nAnd, They're super handy for your daily life but that's pretty obvious stuff,\nright?\nSo, Let me tell you about the different stuff I always carry around.\nFirst, I never leave home without my portable charger.\nI mean, I can listen to whatever music I want, anytime, anywhere, with my\nphone\nand also it's great for handling urgent stuff on the go.\nwell, I was totally freaking out last week when my phone died on my way\nto work.\nNo music, no YouTube, and I couldn't even check when my bus was coming.\nIt's a lifesaver so I gotta have it, no question!\nNext up, I gotta talk about first aid kit, like bandages, cream, and Tylenol.\n[\ud0c0 \uc774-\uc744 \ub808 \ub180]\nEver since I got sick after swimming at the beach in Busan, preparing meds\nhas been a big deal for me.\nWhen I caught a cold, it was rough.\nI was so sick, like coughing [\ucee4-\uc5b4 f\ud4e1] and feverish, I couldn't even think\nabout my vacation anymore.\nI mean, Couldn't eat, couldn't go out, just stuck at the hotel feeling miserable.\nEver since then, I always carry them.\nSo, these [\ub514-\uc774\uc988] things are totally [\ud1a0-\uc6b0 \ub97c\ub9ac] must-haves. And Yeah,\nthat's what I always have on me!"},{"name":"8. \uccab \uacc4\uae30","script":"Okay so, I think my fascination with [ classical music ] started back when I\nwas 20.\nWell, Around that time, I had this buddy who was always heading over to\n[ classical music festival held in \ud3c9\ucc3d ], almost every [year].\nI mean she was absolutely obsessed with [ classical music ].\nThen, out of the blue, she invited me to come along one day.\nTo be honest, I didn't have the slightest [\uc2ac\ub77c\uc774 \ud303\u3145\u314c] idea what I was\ngetting myself into.\nBut, guess what?\nThe experience was totally hard to believe!\nI mean, Everything was beyond my exPECtations [\uc775\uc2a4\ud399 \ud14c\uc774\uc158\u3145] offering\nan amazing moment that I had not anticipated. [\uc564-]\nThe ATmosphere of the [ festival ] and the colLECtive energy of the people\naround me / creATed an unexPECtedly deLIghtful and MEmorable\nadVENture.\nYou know, From that moment, [ listening to classical music ] became my\n[ hobby ] right away.\nand it's been a part of my thing ever since.\nSo yea, If you are looking for something new to dive into, I couldn't suggest\nit more.\nSeriously, give it a shot. It might just blow your mind like it did mine"},{"name":"9. \ud2b9\ubcc4\ud55c \uacbd\ud5d8_\ub9f9\uc7a5","script":"I've got a pretty intense story to tell you. It was probably around this time\nlast year.\nActually, I was [at a beach] [ strolling along the shore ] with my friend.\nThat day, my stomach [\uc2a4\ud1a0\uba6c\u314e] was hurting more than usual, but I didn't\nthink much of it. [\uba38\ucdb0\ube57]\nThen, something crazy happened.\nI got hit with such severe[\uc2dcv\uc5bc] stomach pain that I had to squat down for\na moment. [\ubaa8-\uc6b0 \uba3c\u314c]\nI couldn't get up at all. I started sweating [\uc2a4\uc6e8\ud305] cold and felt a pain like\nnever before in my life.\nEVENtually, I passed out and when I woke [\uc6cc-\uc6c8\u314e] up, I was on a hospital\nbed in the ER.\nThankfully, [ my friend ] imMEdiately called 911 as soon as [\uc5e3\uc21c\uc5e3\u3145] she\nsaw me passing out.\nLuckily, I was taken to the hospital, and I ended up [\uc5d4\ub51b\u314e\uc5c5] having a\nsurgery.\nIt was a total [\ud1a0-\uc6b0\ub7f4] shock.\nFor days after the surgery, I could barely [Bear Lee] eat or drink anything.\nBut looking back, I'm just so grateful.\nWhy grateful? Well, if it weren't for her help, things could've [\ucfe0 \ub461\u314df~]\nbeen much worse."},{"name":"9. \ud2b9\ubcc4\ud55c \uacbd\ud5d8_\uc815\uc804","script":"Well, A few months ago, during my vacation, [\ubca0-\uc774 \ucf00-\uc774 \uc158] it happened.\nThat day, it was raining so hard that I decided to just stay [ at home ].\nAt the time, I was relaxing in my massage [\ubbc0-\uc544 \uc2f8-\uc73c\uc950] chair, and\neverything was perfect! [\ud37c-\uc5bc f\ud4c8\u314c]\nBut then, suddenly, something happened.\nThe power went out and the chair just stopped.\nI mean, I was so scared and panicked because I was stuck in the chair... Can\nyou believe it?\nIt turned out that a heavy rainstorm caused a blackout in the whole [\ud638-\uc744]\nneighborhood.\nLuckily, the power was restored [\ub93c \uc2a4\ud1a0\uc5bc\u3137] soon after, and I managed to\nget out of [\uac9f\uc544\ub86d\u314df~] the chair.\nHowever, unFORtunately, the chair was compLEtely broken and I had to\n[ repair it ].\nAnd you know what's even worse? In Korea, it cost [\ucee4\uc2bd\u314e] more [\ubaa8-\uc5bc]\nthan 200 dollars to [ fix it ].\nWhat a waste of money, right?\nAnyway, that is one of the most memorable experiences for me"},{"name":"9. \ud2b9\ubcc4\ud55c \uacbd\ud5d8_\uc9c0\uc9c4","script":"well, This one happened when I was at IU's Concerts with my friend.\nI was really excited, thinking about the amazing concert ahead.\nSuddenly, the ground under me started shaking.\nAt first, I couldn't believe what was happening.\nbut guess what... It was an earthquake!\nI started panicking [\ud328\ub2e0\ud79d], running in all diRECtions not knowing what to\ndo.\nI mean, The noise from the ground shaking and people screaming was like\nsomething out of a diSAster movie.\nHonestly, it was TErrifying.\nAfter what felt like an eTERnity, [\uc774-\ud138\ub2c8\ud2f0] but was probably only a few\nseconds, the shaking stopped. [\uc2a4\ud0d1\u314ct]\nBy that point, [ the concert ] was the last thing on my mind.\nLuckily, I found a shelter [\uc250-\uc5d0-\uc744 \ud138] where some people had gathered.\nWe all [\uc624-\uc744] waited there together, making sure everyone was safe until\nthe aftershocks passed.\nIt was a surreal [\uc368 \ub93c-\uc744] moment, sharing that fear with strangers.\nLooking back, I barely [Bear Lee] remember anything about the [ concert ]\nWhat sticks with me is how inTENse and scary that experience was.\nDEFinitely one of the most unforGETtable moments of my life."},{"name":"11. \uc9c8\ubb38 \ud558\uae30_\uad6c\ub9e4\uc608\uc57d","script":"Hello! Is this Apple store?\nWell,, I'm calling because [ I'd like to buy iPhone].\nYes, exactly! And I have a few questions.\nWhich [phone] is trending among people these days? Cuz I don't know\nmuch about it.\nSo, what would you recommend? (\uc0c1\ub300 \ub2f5\ubcc0 \ub4e4\uc740 \ucc99) Oh, that sounds\ngreat.\nOkay, How much does it cost? (\uc0c1\ub300 \ub2f5\ubcc0 \ub4e4\uc740 \ucc99) Hmm, that seems a\nbit expensive.\nThen, Are there any deals or specials right now? (\uc0c1\ub300 \ub2f5\ubcc0 \ub4e4\uc740 \ucc99) Great!\nDo you have a website I can check out? Okay, can you send me the link?\nOne last thing, I'll be driving there; Is there a parking lot? (\uc0c1\ub300 \ub2f5\ubcc0 \ub4e4\n\uc740 \ucc99) Thank you so much.\nI guess that's everything. Thanks a lot, take care! Alright, bye!"},{"name":"11. \uc9c8\ubb38 \ud558\uae30_\uce5c\uad6c\uc57d\uc18d","script":"Hello! Hey Jenny It's me!\nWell,, I'm calling because [I'm planning to go to the beach tomorrow and\nwant to know if you want to join.].\nYes, exactly! And I have a few questions.\nWhen are you free? How about [10 in the morning]? (\uc0c1\ub300 \ub2f5\ubcc0 \ub4e4\uc740 \ucc99)\nPerfect!\nCan you give me a ride? (\uc0c1\ub300 \ub2f5\ubcc0 \ub4e4\uc740 \ucc99) Awesome!\nWhen can you pick me up? (\uc0c1\ub300 \ub2f5\ubcc0 \ub4e4\uc740 \ucc99) Okay, got it.\nWhat should I bring? Maybe some food or drinks? (\uc0c1\ub300 \ub2f5\ubcc0 \ub4e4\uc740 \ucc99)\nSounds great, I'll bring some snacks.\nAlright then, that's all for now. Talk to you later! Okay, bye!"},{"name":"12. \ubb38\uc81c \ud574\uacb0 \ubc0f \ub300\uc548 \uc81c\uc2dc_\uad6c\ub9e4\uc608\uc57d","script":"Hello? [ Hi there ]. Is this [Apple Store] ?\nActually, there is a problem with [the phone I received]. Yeah, that's right.\nI bought [iPhone] from your [store] yesterday. Mhmm. but [the features are\nnot what I expected].\n... I know! I'm [very upset] about this situation! -> \uac10\uc815\ud45c\ud604: \ud654\ub0a8/\uc3d8\ub9ac\nFirst, is it okay to [ exchange it for a different model ]?\nOr, can I [ get a refund ]?\nIf not, I'd like to [ speak to your manager in person ].\nPlease let me know which one works. Okay. Bye!"},{"name":"12. \ubb38\uc81c \ud574\uacb0 \ubc0f \ub300\uc548 \uc81c\uc2dc_\uce5c\uad6c\uc57d\uc18d","script":"Hey, Jenny it's me.\nActually, there is a problem with our concert plans. Yeah, that's right.\nI'm really sick and can't even get out of bed.\n... I know! I'm so sorry about this.\n- First, can you go with someone else instead?\n- Or, would you like to try selling the tickets?\n- If not, I can help find someone to take my place.\nPlease let me know which one works. Okay. Bye!"},{"name":"13. \uc720\uc0ac \uacbd\ud5d8","script":"Oh, I've got a story just like this so hear me out.\nOkay, so ... here it is.\nIt was a few years ago, I [ ordered a mini E-reader ]\nbecause [ it was my birthday ].\nSo I decided to [ buy myself a gift ].\nHonestly,, I was quite looking forward to it!\nBut after a few days, something happened.\nI got a call from the [E-reader company] and they said it was canceled\nsomehow.\nThey didn't explain much, only saying it was because [ of out of stock ].\nIt was super frustrating because I had been so excited about it.\nSo ... what did I do?\nI made a complaint and they apologized to me without any excuses.\nEventually, I was able to get a refund and [ ordered a bigger-sized E-reader ]\ninstead.\nTo my surprise, they also sent me a voucher as compensation, which I didn't\nexpect at all..\nAnyway, I don't think it was a big deal in the end, because it worked out\nwithout any major issues"},{"name":"14. \uacfc\uac70\uc640 \ud604\uc7ac \ube44\uad50","script":"You know, [vacation at home] (has) undergone some significant changes over\nthe years\nso I'm here to walk you through how [vacation at home] used to be\ncompared to what it's like now.\n(undergo: \uacaa\ub2e4) (significant: \uc911\uc694\ud55c, \ucee4\ub2e4\ub780) (walk you through: \ucc28\uadfc\ucc28\uadfc\n\uc124\uba85\ud574 \uc8fc\ub2e4)\nBack in the day, there was a lack of [home entertainment options] making it\na bit of a struggle.\nThey always had to spend a great deal of time [finding something fun to do\nat home],\nand it was very inconvenient. Basically, a big waste of time!\nBut now, everything is like a revolution!\nThings have taken a turn for the better and making it a breeze to [enjoy\nvarious activities right from our living room].\nIt's amazing to witness such a shift from limited availability to multiple\noptions.\n(taken a turn for the better: \ucc28\ucc28 \ub098\uc544\uc9c0\ub2e4) (witness: \ubaa9\uaca9\ud558\ub2e4) (make it a\nbreeze: ~\uc744 \uc27d\uac8c \ud574\uc8fc\ub2e4)\nIn addition, thanks to technology, everything's become a lot more convenient.\nFor example, I can easily [stream new releases] - all with a few taps on my\nphone.\nThat's the major game-changer, right?\n\ub9c8\ubb34\ub9ac\nIn summary, these are the changes [vacation at home] (has) experienced\nfrom then till now"},{"name":"15. \uc774\uc288 \ubb38\uc81c\uc810","script":"Okay so, There are many concerning issues going on\nbut in my opinion, the biggest problem is [high rent prices].\nWell, This is quite a big issue and it has become much more serious over\nthe last couple of years.\nActually, this issue was even on the news REcently [\ub93c \uc4f4\ud2c0\ub9ac]\nand they said, [ many people find it hard to buy or rent homes because\nprices are too high. This makes it hard for people to live comfortably]\nLike this, there is no doubt that we need a solution immediately\nbut some of us still don't care much about it, yet.\nIn order to resolve this problem, government should take this issue more\nseriously.\nPlus, we will have to make every effort to avoid any similar consequences\nlike this.\nAnyway, this is the biggest social issue I could think of."}];
+var DATA = {};       // { subject: [question, ...] }
+var TEMPLATES = [];  // [{name, script}]
+var SUBJ_KEYS = [];
+var ALL_QS = [];     // flat list
+
+// ── 상태 ──
+var theme = localStorage.getItem('opic_theme') || 'light';
+var stars = {};  // {id: star} — 시트 있으면 시트에서, 없으면 localStorage
+var studyFilter = 'all';
+var qFilter = 'all';
+var testFilter = 'all';
+var currentSubject = null;
+var currentAllQList = [];
+var currentQIdx = 0;
+var testQs = [];
+var testIdx = 0;
+
+// ── 초기화 ──
+function init() {
+  applyTheme(theme);
+  loadData();
+}
+
+function loadData() {
+  // 캐시 있으면 즉시 시작
+  var cached = null;
+  try { cached = JSON.parse(localStorage.getItem('opic_data_cache') || 'null'); } catch(e) {}
+
+  if (cached && cached.questions && cached.questions.length) {
+    // 별점은 localStorage에서 별도 로드 (최신)
+    var cachedStars = {};
+    try { cachedStars = JSON.parse(localStorage.getItem('opic_stars') || '{}'); } catch(e) {}
+    // 캐시 데이터의 star를 localStorage 별점으로 덮어쓰기
+    cached.questions.forEach(function(q) {
+      var ls = cachedStars[q.id];
+      if (ls !== undefined) q.star = ls;
+    });
+    buildFromSheet(cached.questions, cached.templates, cached.richText);
+    document.getElementById('loading').style.display = 'none';
+    showRaw('home');
+    updateHomeStats();
+    return;
+  }
+
+  // 캐시 없으면 설정 화면으로
+  document.getElementById('loading').style.display = 'none';
+  showRaw('settings');
+  showStatus('구글 시트 URL을 입력하고 동기화해주세요.', false);
+}
+function buildFromSheet(questions, templates, richText) {
+  DATA = {}; stars = {};
+  IS_RICH_TEXT = !!richText;
+  questions.forEach(function(q){
+    if (!DATA[q.subject]) DATA[q.subject] = [];
+    DATA[q.subject].push({id: q.id, title: q.title, question: q.question, script: q.script});
+    stars[q.id] = q.star || 0;
+  });
+  SUBJ_KEYS = Object.keys(DATA);
+  ALL_QS = questions;
+  TEMPLATES = templates && templates.length ? templates : FALLBACK_TEMPLATES;
+  try {
+    localStorage.setItem('opic_data_cache', JSON.stringify({
+      questions: questions, templates: TEMPLATES, richText: IS_RICH_TEXT
+    }));
+  } catch(e) {}
+  renderDrawer();
+  updateSyncStatus('✓ 시트 연결됨');
+}
+
+function setLoadTxt(msg) {
+  document.getElementById('load-txt').textContent = msg;
+  document.getElementById('load-txt').className = 'load-txt';
+}
+function setLoadErr(msg) {
+  var el = document.getElementById('load-txt');
+  el.className = 'load-err';
+  el.textContent = msg;
+  var wrap = document.createElement('div');
+  wrap.style.marginTop = '12px';
+  var b1 = document.createElement('button');
+  b1.className = 'load-err-btn';
+  b1.textContent = '⚙️ 설정 열기';
+  b1.onclick = function() { goTo('settings'); };
+  var b2 = document.createElement('button');
+  b2.className = 'load-err-btn';
+  b2.style.marginLeft = '8px';
+  b2.textContent = '다시 시도';
+  b2.onclick = retryLoad;
+  wrap.appendChild(b1);
+  wrap.appendChild(b2);
+  el.appendChild(wrap);
+}
+function retryLoad() {
+  var el = document.getElementById('load-txt');
+  el.className = 'load-txt';
+  el.textContent = '다시 연결 중...';
+  loadData();
+}
+
+// ── 설정 ──
+function goTo(id) {
+  showRaw(id);
+  if (id === 'home') { updateHomeStats(); }
+  if (id === 'study-subjects') renderStudyMain();
+  if (id === 'study-questions') renderQuestions();
+  if (id === 'settings') {
+    var su = document.getElementById('script-url');
+    if (su) su.value = SCRIPT_URL;
+  }
+}
+function saveAndSync() {
+  var url = document.getElementById('script-url').value.trim();
+  if (!url) { showStatus('URL을 입력해주세요', true); return; }
+  SCRIPT_URL = url;
+  localStorage.setItem('opic_script_url', url);
+  showStatus('연결 중...', false);
+  jsonpLoad(url, function(d) {
+    if (!d.ok) { showStatus('✗ 오류: ' + (d.error || '알 수 없음'), true); return; }
+    if (!d.questions || !d.questions.length) { showStatus('✗ 문제 없음 count=' + (d.count||0), true); return; }
+    buildFromSheet(d.questions, d.templates, d.richText);
+    showStatus('✓ 연결 성공! ' + d.questions.length + '개 문제 로드', false);
+    setTimeout(function(){ goTo('home'); }, 1200);
+  }, function(err) {
+    showStatus('✗ 실패: ' + err, true);
+  });
+}
+function showStatus(msg, isErr) {
+  var el = document.getElementById('sync-status');
+  el.textContent = msg;
+  el.className = 'settings-status' + (isErr ? ' err' : '');
+}
+function updateSyncStatus(msg) {
+  var lbl = document.getElementById('sync-status-lbl');
+  if (lbl) lbl.textContent = SCRIPT_URL ? msg || '연결됨' : '미설정';
+}
+
+// ── 별점 ──
+function getStar(id) { return stars[id] || 0; }
+function setStar(id, val) {
+  stars[id] = val;
+  // 1. localStorage 즉시 저장
+  localStorage.setItem('opic_stars', JSON.stringify(stars));
+  // 2. 캐시의 해당 문제 star도 업데이트
+  try {
+    var cache = JSON.parse(localStorage.getItem('opic_data_cache') || 'null');
+    if (cache && cache.questions) {
+      cache.questions.forEach(function(q){ if (q.id === id) q.star = val; });
+      localStorage.setItem('opic_data_cache', JSON.stringify(cache));
+    }
+  } catch(e) {}
+  // 3. 시트에 JSONP GET으로 업데이트 (백그라운드, 실패해도 무시)
+  if (SCRIPT_URL) {
+    jsonpLoad(SCRIPT_URL + '&action=setStar&id=' + id + '&star=' + val,
+      function(){}, function(){});
+  }
+  updateHomeStats();
+}
+function clickStar(id, val) {
+  setStar(id, getStar(id) === val ? 0 : val);
+  document.querySelectorAll('[data-star-for="' + id + '"]').forEach(function(el){ renderStarsInto(el, id); });
+  var a = document.querySelector('.screen.active');
+  if (!a) return;
+  if (a.id === 'study-subjects') renderStudyMain();
+  if (a.id === 'study-questions') renderQuestions();
+  if (a.id === 'test-subjects') renderTestMain();
+  if (a.id === 'test-quiz' && testFilter !== 'all') {
+    var curQ = testQs[testIdx];
+    testQs = getTestPool();
+    var ni = testQs.indexOf(curQ);
+    testIdx = ni === -1 ? Math.min(testIdx, testQs.length-1) : ni;
+    if (!testQs.length) { showRaw('test-subjects'); renderTestMain(); return; }
+    renderTestQ();
+  }
+}
+function renderStarsInto(el, id) {
+  var v = getStar(id), h = '';
+  for (var i = 1; i <= 3; i++)
+    h += '<button class="star-btn" onclick="clickStar('+id+','+i+')" style="color:'+(i<=v?'var(--star)':'var(--star-off)')+'">★</button>';
+  el.innerHTML = h;
+}
+function starsHTML(id) {
+  var v = getStar(id), h = '<div data-star-for="'+id+'" style="display:flex;gap:8px">';
+  for (var i = 1; i <= 3; i++)
+    h += '<button class="star-btn" onclick="clickStar('+id+','+i+')" style="color:'+(i<=v?'var(--star)':'var(--star-off)')+'">★</button>';
+  return h + '</div>';
+}
+function matchQ(q, f) {
+  if (f === 'all') return true;
+  return getStar(q.id) === parseInt(f);
+}
+
+// ── 홈 통계 ──
+function updateHomeStats() {
+  var c = [0,0,0,0], total = 0;
+  SUBJ_KEYS.forEach(function(k){
+    DATA[k].forEach(function(q){
+      total++;
+      var v = getStar(q.id);
+      if (v >= 0 && v <= 3) c[v]++;
+    });
+  });
+  var s = document.getElementById('st-subj');
+  if (s) s.textContent = SUBJ_KEYS.length;
+  var t = document.getElementById('st-total');
+  if (t) t.textContent = total;
+  document.getElementById('st0').textContent = c[0];
+  document.getElementById('st1').textContent = c[1];
+  document.getElementById('st2').textContent = c[2];
+  document.getElementById('st3').textContent = c[3];
+  updateSyncStatus(SCRIPT_URL ? '연결됨' : '미설정');
+}
+
+// ── 테마 ──
+function applyTheme(t) {
+  theme = t; document.body.className = t;
+  localStorage.setItem('opic_theme', t);
+  var l = t === 'light';
+  // 홈 토글 버튼
+  var icon = document.getElementById('theme-icon');
+  var lbl  = document.getElementById('theme-label');
+  if (icon) icon.textContent = l ? '🌙' : '☀️';
+  if (lbl)  lbl.textContent  = l ? '다크' : '라이트';
+  // 다른 화면 theme-btn
+  document.querySelectorAll('.theme-btn').forEach(function(b){ b.textContent = l?'🌙':'☀️'; });
+}
+function setTheme(t) { applyTheme(t); }
+function toggleTheme() { applyTheme(theme==='light'?'dark':'light'); }
+function showRaw(id) {
+  var ldiv = document.getElementById('loading');
+  if (ldiv) ldiv.style.display = 'none';
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  var el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+function setPillActive(barId, idx) {
+  var pills = document.querySelectorAll('#'+barId+' .fpill');
+  pills.forEach(function(p){ p.classList.remove('active'); });
+  if (pills[idx]) pills[idx].classList.add('active');
+}
+
+// ── 스터디 모드 ──
+function enterMode(mode) {
+  if (mode === 'study') {
+    studyFilter = 'all'; setPillActive('sf-study-subj', 0);
+    renderStudyMain(); showRaw('study-subjects');
+  } else {
+    testFilter = 'all'; setPillActive('sf-test-subj', 0);
+    renderTestMain(); updateRandomDesc(); showRaw('test-subjects');
+  }
+}
+function setStudyFilter(f, el) {
+  studyFilter = f;
+  document.querySelectorAll('#sf-study-subj .fpill').forEach(function(p){ p.classList.remove('active'); });
+  el.classList.add('active');
+  renderStudyMain();
+}
+function setQFilter(f, el) {
+  qFilter = f;
+  document.querySelectorAll('#sf-study-q .fpill').forEach(function(p){ p.classList.remove('active'); });
+  el.classList.add('active');
+  renderQuestions();
+}
+function renderStudyMain() {
+  if (studyFilter === 'all') renderSubjects();
+  else renderFlatList();
+}
+function renderSubjects() {
+  document.getElementById('subj-list').innerHTML = SUBJ_KEYS.map(function(s,i){
+    var qs = DATA[s], rated = qs.filter(function(q){ return getStar(q.id)>0; }).length;
+    return '<div class="subj-item" data-idx="'+i+'" onclick="openSubject(+this.dataset.idx)">'+
+      '<div class="subj-name">'+s+'</div>'+
+      '<div class="subj-right"><span class="subj-count">'+rated+'/'+qs.length+'</span>'+
+      '<div class="chev"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div></div>';
+  }).join('');
+}
+function renderFlatList() {
+  var items = [];
+  SUBJ_KEYS.forEach(function(s,si){
+    DATA[s].forEach(function(q,qi){ if(matchQ(q,studyFilter)) items.push({s:s,si:si,q:q,qi:qi}); });
+  });
+  document.getElementById('subj-list').innerHTML = items.length ? items.map(function(item){
+    var v=getStar(item.q.id),ss=[1,2,3].map(function(i){ return '<span style="color:'+(i<=v?'var(--star)':'var(--star-off)')+';font-size:13px">★</span>'; }).join('');
+    return '<div class="q-item" data-si="'+item.si+'" data-qi="'+item.qi+'" onclick="openFlatScript(+this.dataset.si,+this.dataset.qi)">'+
+      '<div class="q-item-left">'+
+      '<div class="q-item-num" style="color:var(--accent);font-weight:600">'+item.s+'</div>'+
+      '<div class="q-item-title">'+item.q.title+'</div>'+
+      '<div class="q-item-prev">'+previewText(item.q.question)+'</div></div>'+
+      '<div class="q-item-stars">'+ss+'</div></div>';
+  }).join('') : '<div class="empty">해당 조건의 문제가 없어요</div>';
+}
+function openSubject(si) {
+  currentSubject = SUBJ_KEYS[si]; currentAllQList = DATA[currentSubject];
+  qFilter = 'all'; setPillActive('sf-study-q', 0);
+  renderQuestions(); showRaw('study-questions');
+}
+function openFlatScript(si,qi) {
+  currentSubject = SUBJ_KEYS[si]; currentAllQList = DATA[currentSubject];
+  currentQIdx = qi; renderScript(); showRaw('study-script');
+}
+function renderQuestions() {
+  var list = qFilter==='all' ? currentAllQList : currentAllQList.filter(function(q){ return matchQ(q,qFilter); });
+  document.getElementById('sq-title').textContent = currentSubject;
+  document.getElementById('sq-sub').textContent = list.length+'문제';
+  document.getElementById('q-list').innerHTML = list.length ? list.map(function(q){
+    var v=getStar(q.id),ss=[1,2,3].map(function(i){ return '<span style="color:'+(i<=v?'var(--star)':'var(--star-off)')+';font-size:13px">★</span>'; }).join('');
+    var qi=currentAllQList.indexOf(q);
+    return '<div class="q-item" data-qi="'+qi+'" onclick="openScript(+this.dataset.qi)">'+
+      '<div class="q-item-left"><div class="q-item-num">Q'+(qi+1)+'</div>'+
+      '<div class="q-item-title">'+q.title+'</div>'+
+      '<div class="q-item-prev">'+previewText(q.question)+'</div></div>'+
+      '<div class="q-item-stars">'+ss+'</div></div>';
+  }).join('') : '<div class="empty">해당 조건의 문제가 없어요</div>';
+}
+function openScript(qi) { currentQIdx=qi; renderScript(); showRaw('study-script'); }
+function renderScript() {
+  var q=currentAllQList[currentQIdx], total=currentAllQList.length;
+  document.getElementById('sv-title').textContent = q.title;
+  document.getElementById('sv-sub').textContent = currentSubject+' · Q'+(currentQIdx+1)+'/'+total;
+  document.getElementById('sv-prev').disabled = currentQIdx===0;
+  document.getElementById('sv-next').disabled = currentQIdx===total-1;
+  var questionContent = IS_RICH_TEXT ? q.question : esc(q.question);
+  var scriptContent   = IS_RICH_TEXT ? q.script   : esc(q.script);
+  document.getElementById('sv-body').innerHTML =
+    '<div class="sv-section-label">문제</div><div class="sv-question-box">'+questionContent+'</div>'+
+    '<div class="sv-section-label">스크립트</div><div class="sv-script-box">'+scriptContent+'</div>'+
+    '<div class="star-card"><div class="star-card-label">숙련도</div>'+starsHTML(q.id)+'</div>';
+}
+function moveStudyQ(dir) {
+  currentQIdx=Math.max(0,Math.min(currentAllQList.length-1,currentQIdx+dir));
+  renderScript(); document.getElementById('sv-body').scrollTop=0;
+}
+
+// ── 테스트 모드 ──
+function setTestFilter(f,el) {
+  testFilter=f;
+  document.querySelectorAll('#sf-test-subj .fpill').forEach(function(p){ p.classList.remove('active'); });
+  el.classList.add('active');
+  renderTestMain(); updateRandomDesc();
+}
+function filterLabel(f) {
+  if (f==='all') return '전체'; if (f==='0') return '미평가';
+  return '★'.repeat(parseInt(f));
+}
+function getTestPool() {
+  var pool=[];
+  SUBJ_KEYS.forEach(function(k){ DATA[k].forEach(function(q){ if(matchQ(q,testFilter)) pool.push(q); }); });
+  return pool;
+}
+function renderTestMain() {
+  if (testFilter==='all') {
+    document.getElementById('test-subj-sub').textContent = '주제 선택 또는 랜덤';
+    renderTestSubjects();
+  } else {
+    var pool=getTestPool(), label=filterLabel(testFilter);
+    document.getElementById('test-subj-sub').textContent = label+' 문제 '+pool.length+'개';
+    document.getElementById('test-subj-list').innerHTML = pool.length ? pool.map(function(q,i){
+      var v=getStar(q.id),ss=[1,2,3].map(function(j){ return '<span style="color:'+(j<=v?'var(--star)':'var(--star-off)')+';font-size:13px">★</span>'; }).join('');
+      var subj=''; SUBJ_KEYS.forEach(function(k){ if(DATA[k].indexOf(q)!==-1) subj=k; });
+      return '<div class="q-item" data-pi="'+i+'" onclick="startTestFromPool(+this.dataset.pi)">'+
+        '<div class="q-item-left">'+
+        '<div class="q-item-num" style="color:var(--accent);font-weight:600">'+subj+'</div>'+
+        '<div class="q-item-title">'+q.title+'</div>'+
+        '<div class="q-item-prev">'+previewText(q.question)+'</div></div>'+
+        '<div class="q-item-stars">'+ss+'</div></div>';
+    }).join('') : '<div class="empty">해당 조건의 문제가 없어요</div>';
+  }
+}
+function renderTestSubjects() {
+  document.getElementById('test-subj-list').innerHTML = SUBJ_KEYS.map(function(s,i){
+    return '<div class="subj-item" data-idx="'+i+'" onclick="startTestByIdx(+this.dataset.idx)">'+
+      '<div class="subj-name">'+s+'</div>'+
+      '<div class="subj-right"><span class="subj-count">'+DATA[s].length+'문제</span>'+
+      '<div class="chev"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div></div>';
+  }).join('');
+}
+function updateRandomDesc() {
+  var el = document.getElementById('random-desc');
+  if (!el) return;
+  if (testFilter==='all') { el.textContent='랜덤 주제 하나를 뽑아요'; return; }
+  var pool=getTestPool();
+  el.textContent = filterLabel(testFilter)+' 문제 '+pool.length+'개 중 랜덤 3개';
+}
+function startRandom() {
+  if (!SUBJ_KEYS.length) return;
+  if (testFilter==='all') {
+    var si=Math.floor(Math.random()*SUBJ_KEYS.length), subj=SUBJ_KEYS[si];
+    var pool=DATA[subj].slice(); pool.sort(function(){ return Math.random()-.5; });
+    testQs=pool.slice(0,Math.min(3,pool.length)); currentSubject=subj;
+  } else {
+    var pool=getTestPool(); if(!pool.length) return;
+    pool.sort(function(){ return Math.random()-.5; });
+    testQs=pool.slice(0,3); currentSubject=filterLabel(testFilter)+' 랜덤';
+  }
+  testIdx=0; renderTestQ(); showRaw('test-quiz');
+}
+function startTestByIdx(si) {
+  currentSubject=SUBJ_KEYS[si];
+  var pool=DATA[currentSubject].slice(); pool.sort(function(){ return Math.random()-.5; });
+  testQs=pool.slice(0,Math.min(3,pool.length)); testIdx=0; renderTestQ(); showRaw('test-quiz');
+}
+function startTestFromPool(pi) {
+  var pool=getTestPool(); if(!pool.length) return;
+  testQs=pool; testIdx=pi; currentSubject=filterLabel(testFilter);
+  renderTestQ(); showRaw('test-quiz');
+}
+function renderTestQ() {
+  var q=testQs[testIdx], total=testQs.length;
+  var subjLabel=currentSubject;
+  if (testFilter!=='all') { SUBJ_KEYS.forEach(function(k){ if(DATA[k].indexOf(q)!==-1) subjLabel=k; }); }
+  document.getElementById('tq-title').textContent=subjLabel;
+  document.getElementById('tq-sub').textContent='Q'+(testIdx+1)+' / '+total;
+  document.getElementById('tq-prog').style.width=Math.round((testIdx+1)/total*100)+'%';
+  document.getElementById('tq-prev').disabled=testIdx===0;
+  document.getElementById('tq-next').textContent=testIdx===total-1?'완료 ✓':'다음 →';
+  document.getElementById('tq-body').innerHTML=
+    '<div class="test-topic-badge">'+subjLabel+'</div>'+
+    '<div class="test-q-text">'+renderText(q.question)+'</div>'+
+    '<button class="ans-toggle" id="ans-btn" onclick="toggleAns()">'+
+    '<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg> 스크립트 보기</button>'+
+    '<div class="ans-reveal" id="ans-box">'+(IS_RICH_TEXT ? q.script : esc(q.script))+'</div>'+
+    '<div class="star-card" style="margin-top:20px"><div class="star-card-label">숙련도</div>'+starsHTML(q.id)+'</div>';
+}
+function toggleAns() {
+  var btn=document.getElementById('ans-btn'), box=document.getElementById('ans-box');
+  var open=box.classList.toggle('show');
+  btn.classList.toggle('open',open);
+  btn.innerHTML='<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg> '+(open?'스크립트 숨기기':'스크립트 보기');
+}
+function moveTestQ(dir) {
+  if (testIdx===testQs.length-1&&dir===1) {
+    document.getElementById('done-sub').textContent=currentSubject+' '+testQs.length+'문제 완료! 꾸준히 연습하면 분명 AL 갈 수 있어요 💪';
+    showRaw('test-done'); return;
+  }
+  testIdx=Math.max(0,Math.min(testQs.length-1,testIdx+dir));
+  renderTestQ(); document.getElementById('tq-body').scrollTop=0;
+}
+
+// ── 대표유형 드로어 (리스트→상세) ──
+function renderDrawer() {
+  document.getElementById('drawer-title').textContent='대표 유형';
+  document.getElementById('drawer-body').innerHTML =
+    TEMPLATES.map(function(t,i){
+      return '<div class="tmpl-list-item" data-ti="'+i+'" onclick="showTmplDetail(+this.dataset.ti)">'+
+        '<div class="tmpl-list-name">'+esc(t.name)+'</div>'+
+        '<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--muted2);fill:none;stroke-width:2;flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>'+
+        '</div>';
+    }).join('');
+}
+function showTmplDetail(i) {
+  var t=TEMPLATES[i];
+  document.getElementById('drawer-title').textContent=t.name;
+  document.getElementById('drawer-body').innerHTML=
+    '<div class="tmpl-back" onclick="renderDrawer()">'+
+    '<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>목록으로</div>'+
+    '<div class="tmpl-detail">'+
+    '<div class="tmpl-detail-script">'+(IS_RICH_TEXT ? t.script : esc(t.script))+'</div></div>';
+}
+function openDrawer() {
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+  renderDrawer();
+}
+function closeDrawer() {
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+// 시트 HTML이면 그대로, 아니면 esc처리
+function renderText(s){ return IS_RICH_TEXT ? String(s||'') : esc(s); }
+// 미리보기용: HTML 태그 제거하고 첫 줄만
+function previewText(s){
+  var plain = IS_RICH_TEXT ? String(s||'').replace(/<[^>]+>/g,'') : String(s||'');
+  return esc(plain.split('\n')[0]);
+}
+
+// JSONP 로더 (CORS 우회)
+function jsonpLoad(url, onSuccess, onError) {
+  var cbName = 'opic_cb_' + Date.now();
+  var script = document.createElement('script');
+  var timer = setTimeout(function() {
+    cleanup();
+    onError('타임아웃 (30초) — Apps Script 배포 상태를 확인해주세요');
+  }, 30000);
+
+  function cleanup() {
+    clearTimeout(timer);
+    delete window[cbName];
+    if (script.parentNode) script.parentNode.removeChild(script);
+  }
+
+  window[cbName] = function(data) {
+    cleanup();
+    onSuccess(data);
+  };
+
+  // Apps Script JSONP: ?callback=함수명
+  var sep = url.indexOf('?') === -1 ? '?' : '&';
+  script.src = url + sep + 'callback=' + cbName;
+  script.onerror = function() { cleanup(); onError('스크립트 로드 실패'); };
+  document.head.appendChild(script);
+}
+
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(function(){}); }
+init();
+</script>
+</body>
+</html>
