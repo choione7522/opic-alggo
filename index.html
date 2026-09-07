@@ -392,6 +392,10 @@ var ALL_QS = [];     // flat list
 // ── 상태 ──
 var theme = localStorage.getItem('opic_theme') || 'light';
 var stars = {};  // {id: star} — 시트 있으면 시트에서, 없으면 localStorage
+// 시트 전송이 아직 확인되지 않은(성공 응답을 못 받은) 별점 id 목록.
+// 새로고침 시 시트의 최신 데이터가 이 값들을 덮어쓰지 않도록 보호하고, 재전송을 재시도한다.
+var pendingStars = {};
+try { pendingStars = JSON.parse(localStorage.getItem('opic_pending_stars') || '{}'); } catch(e) {}
 var studyFilter = 'all';
 var qFilter = 'all';
 var testFilter = 'all';
@@ -425,7 +429,7 @@ function loadData() {
     document.getElementById('loading').style.display = 'none';
     showRaw('home');
     updateHomeStats();
-    if (SCRIPT_URL) refreshFromSheet();
+    if (SCRIPT_URL) { retryPendingStars(); refreshFromSheet(); }
     return;
   }
 
@@ -440,6 +444,13 @@ function loadData() {
 function refreshFromSheet() {
   jsonpLoad(SCRIPT_URL, function(d) {
     if (!d || !d.ok || !d.questions || !d.questions.length) return;
+    // 아직 시트 반영이 확인되지 않은 로컬 별점 변경은, 서버의 예전 값으로
+    // 덮어쓰지 않고 로컬 값을 그대로 유지한다 (전송 완료되면 자연히 동기화됨).
+    if (Object.keys(pendingStars).length) {
+      d.questions.forEach(function(q) {
+        if (pendingStars[q.id] !== undefined && stars[q.id] !== undefined) q.star = stars[q.id];
+      });
+    }
     buildFromSheet(d.questions, d.templates, d.richText);
     try { localStorage.setItem('opic_stars', JSON.stringify(stars)); } catch(e) {}
     rerenderCurrentScreen();
@@ -554,12 +565,35 @@ function setStar(id, val) {
       localStorage.setItem('opic_data_cache', JSON.stringify(cache));
     }
   } catch(e) {}
-  // 3. 시트에 JSONP GET으로 업데이트 (백그라운드, 실패해도 무시)
+  // 3. 시트에 JSONP GET으로 업데이트 (백그라운드). 응답 확인 전까지는
+  //    pendingStars에 표시해서, 그 사이 새로고침이 일어나도 시트의 예전 값에
+  //    이 로컬 변경이 덮어써지지 않게 보호한다.
   if (SCRIPT_URL) {
+    markStarPending(id);
     jsonpLoad(SCRIPT_URL + '&action=setStar&id=' + id + '&star=' + val,
-      function(){}, function(){});
+      function(d){ if (d && d.ok) clearStarPending(id); },
+      function(){ /* 실패 시 pending 유지 → 다음 로드 때 재시도 */ });
   }
   updateHomeStats();
+}
+function markStarPending(id) {
+  pendingStars[id] = true;
+  try { localStorage.setItem('opic_pending_stars', JSON.stringify(pendingStars)); } catch(e) {}
+}
+function clearStarPending(id) {
+  delete pendingStars[id];
+  try { localStorage.setItem('opic_pending_stars', JSON.stringify(pendingStars)); } catch(e) {}
+}
+// 앱 시작 시 아직 시트 반영이 확인되지 않은 별점들을 다시 전송 시도한다.
+function retryPendingStars() {
+  if (!SCRIPT_URL) return;
+  Object.keys(pendingStars).forEach(function(id) {
+    var val = stars[id];
+    if (val === undefined) { clearStarPending(id); return; }
+    jsonpLoad(SCRIPT_URL + '&action=setStar&id=' + id + '&star=' + val,
+      function(d){ if (d && d.ok) clearStarPending(id); },
+      function(){});
+  });
 }
 function clickStar(id, val) {
   setStar(id, getStar(id) === val ? 0 : val);
