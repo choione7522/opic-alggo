@@ -266,7 +266,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
         5. 배포 URL을 위에 붙여넣고 저장
       </div>
     </div>
-    <div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:20px">build 2026-09-07-4</div>
+    <div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:20px">build 2026-09-07-5</div>
   </div>
 </div>
 
@@ -621,7 +621,10 @@ function setStar(id, val) {
   updateHomeStats();
 }
 function sendStarToSheet(id, val) {
-  jsonpLoad(SCRIPT_URL + '&action=setStar&id=' + id + '&star=' + val,
+  // SCRIPT_URL엔 보통 물음표(쿼리스트링)가 없는데 여기서 바로 '&'로 붙이면
+  // ".../exec&action=setStar..." 같은 잘못된 URL이 되어 요청이 깨진다. '?' 유무를 확인해서 붙인다.
+  var sep = SCRIPT_URL.indexOf('?') === -1 ? '?' : '&';
+  jsonpLoad(SCRIPT_URL + sep + 'action=setStar&id=' + id + '&star=' + val,
     function(d) { recordStarWriteResult(id, val, !!(d && d.ok), d && d.error); },
     function(err) { recordStarWriteResult(id, val, false, err); });
 }
